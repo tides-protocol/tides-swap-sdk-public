@@ -1,0 +1,13 @@
+{
+  "rust-analyzer.linkedProjects": ["./sui/rust/Cargo.toml"],
+  "files.associations": {
+    ".env.*": "properties"
+  },
+  // formatters
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  // we are eslint fellas here
+  "eslint.useFlatConfig": true,
+  "prettier.enable": false
+}

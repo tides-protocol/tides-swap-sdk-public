@@ -1,0 +1,39 @@
+# @see https://buf.build/docs/configuration/v2/buf-gen-yaml
+version: v2
+
+plugins:
+  # Generate TypeScript
+  - local: ./sui/ts/node_modules/.bin/protoc-gen-ts_proto
+    strategy: all
+    out: ./sui/ts/src/_codegen
+    opt:
+      - outputClientImpl=grpc-web
+      - outputIndex=true
+      - lowerCaseServiceMethods=true
+      - env=browser
+      - fileSuffix=.pb
+      - forceLong=bigint
+  # Generate Rust
+  - remote: buf.build/community/neoeinstein-prost:v0.4.0
+    out: ./sui/rust/src/_codegen
+    opt:
+      - bytes=.
+      - compile_well_known_types
+      - extern_path=.google.protobuf=::pbjson_types
+      - file_descriptor_set
+  - remote: buf.build/community/neoeinstein-prost-serde:v0.3.1
+    out: ./sui/rust/src/_codegen
+  - remote: buf.build/community/neoeinstein-prost-crate:v0.4.1
+    out: ./sui/rust/src/_codegen
+    opt:
+      - no_features
+  - remote: buf.build/community/neoeinstein-tonic:v0.4.1
+    out: ./sui/rust/src/_codegen
+    opt:
+      - compile_well_known_types
+      - extern_path=.google.protobuf=::pbjson_types
+
+inputs:
+  - git_repo: ssh://git@github.com/tides-protocol/monorepo.git
+    branch: main
+    subdir: proto

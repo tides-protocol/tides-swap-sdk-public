@@ -1,0 +1,46 @@
+{
+  "name": "@tides-protocol/sui-swap-sdk",
+  "type": "module",
+  "version": "0.1.0",
+  "keywords": [
+    "typescript",
+    "sui",
+    "web3",
+    "defi"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "check": "tsc --noEmit",
+    "dev": "tsdown --watch",
+    "lint": "eslint .",
+    "lint-fix": "eslint . --fix"
+  },
+  "peerDependencies": {
+    "@mysten/sui": "^1.36.0"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.6.3",
+    "@improbable-eng/grpc-web": "^0.15.0",
+    "browser-headers": "^0.4.1",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.10.0",
+    "eslint": "^9.32.0",
+    "ts-proto": "^2.7.5",
+    "tsdown": "^0.12.3",
+    "typescript": ">=5.4.0"
+  }
+}
