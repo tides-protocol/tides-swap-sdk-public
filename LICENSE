@@ -1,0 +1,58 @@
+SPDX-License-Identifier: BUSL-1.1
+
+Business Source License 1.1 – SDK Edition (Anti-Replication)
+
+Licensor: Neptune Labs
+Licensed Work: The "Neptune Labs SDK" and any code in this repository (the "SDK").
+Additional Use Grant (SDK): You may use, modify, link to (statically or dynamically), and distribute the SDK as part of your own applications ("Applications"), including commercial Applications, and you may use the SDK in production to operate those Applications for your users and/or customers.
+
+Change Date: Three (3) years from the public release date of each version of the SDK.
+Change License: Apache License, Version 2.0 (for that version only).
+
+1. Definitions.
+   "Non-Production Use" means any use that is not Production Use.
+   "Production Use" means use of the SDK in or for the benefit of a live, external-facing Application, including processing production data or making functionality available to end users.
+   "Competing Protocol or SDK" means any protocol, network, developer toolkit, SDK, API, framework, library, or hosted/managed service that is a substitute for, or substantially similar in core functionality to, the SDK or any protocol/service publicly offered by Licensor.
+   "Substantially Similar" means providing core features that a reasonable person would view as functionally equivalent or serving the same primary use cases as the SDK or Licensor's protocol/service, even if implemented differently.
+
+2. License Grant (Before the Change Date).
+   Subject to your compliance with this License, Licensor grants you a non-exclusive, worldwide, non-transferable, non-sublicensable, royalty-free license to:
+   (a) copy, modify, create derivative works of, and redistribute the SDK for Non-Production Use; and
+   (b) make Production Use of the SDK solely as permitted by the Additional Use Grant (SDK) above.
+
+   Restrictions (before the Change Date): You may NOT
+     (i) redistribute, host, or offer the SDK or any derivative as a standalone library, SDK, API, framework, plugin, or other developer tool;
+     (ii) provide the SDK (or any derivative) as a hosted or managed service to third parties, or a service that is a substitute for or substantially similar to the SDK;
+     (iii) relicense, sublicense, or sell the SDK itself (separate from your Application);
+     (iv) remove or alter license or attribution notices, or circumvent licensing/telemetry mechanisms;
+     (v) use Licensor's names, logos, or trademarks, except as required by Section 4; or
+     (vi) use the SDK, any portion of it, or any knowledge, insights, or performance data derived from it to design, train, test, validate, benchmark, or ship any Competing Protocol or SDK, or to assist any third party in doing so.
+
+   Reverse Engineering. You may not reverse engineer, decompile, or disassemble the SDK, or otherwise attempt to derive its source code, algorithms, or design, except to the limited extent that applicable law expressly permits despite this restriction for the sole purpose of achieving interoperability with your Application, and not to create any Competing Protocol or SDK.
+
+3. Automatic Conversion on the Change Date.
+   On the Change Date, this license for the corresponding version of the SDK automatically and irrevocably converts to the Change License. From that date, your rights for that version are governed solely by the Change License.
+
+4. Redistribution; Notices; Modifications You Distribute.
+   If you redistribute the SDK or any derivative (including when embedded in an Application), you must:
+   (a) include this License text and the license parameters above;
+   (b) preserve all copyright, patent, trademark, and attribution notices; and
+   (c) clearly indicate modifications you have made.
+   If you distribute modifications to SDK source files, those modified SDK files must be made available in source form under this License at no charge.
+
+5. No Trademark License.
+   This License does not grant permission to use Licensor's names, logos, or trademarks, except to the extent necessary to comply with Section 4.
+
+6. Termination.
+   Your rights under this License terminate automatically if you breach it. If you cure the breach within 30 days of notice, your license is reinstated unless previously terminated for breach. Upon termination, you must cease use and distribution of the SDK except as permitted under any Change License already in effect for versions you hold.
+
+7. Warranty Disclaimer.
+   THE SDK IS PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+8. Limitation of Liability.
+   TO THE MAXIMUM EXTENT PERMITTED BY LAW, LICENSOR WILL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS, REVENUE, DATA, OR GOODWILL. LICENSOR'S AGGREGATE LIABILITY FOR DIRECT DAMAGES WILL NOT EXCEED ONE HUNDRED U.S. DOLLARS (US$100).
+
+9. Miscellaneous.
+   This License is governed by the laws applicable in Licensor's principal place of business, excluding conflict-of-laws rules. If any provision is unenforceable, it will be modified to the minimum extent necessary, and the remainder will remain in effect. Licensor may offer separate commercial licenses granting additional rights.
+
+END OF TERMS
