@@ -354,3 +354,4 @@ match client.quote_exact_in(...).await {
 
 ## License
 
+This project is licensed under the Business Source License 1.1 - see the [LICENSE](../LICENSE) file for details.

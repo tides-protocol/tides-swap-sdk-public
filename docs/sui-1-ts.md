@@ -387,4 +387,4 @@ function handleQuoteMessage(client: TidesClient, message: any): void {
 
 ## License
 
-[Add your license information here]
+This project is licensed under the Business Source License 1.1 - see the [LICENSE](../LICENSE) file for details.
