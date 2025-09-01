@@ -42,7 +42,7 @@ async fn main() {
 
 async fn get_quote_handler(Query(params): Query<QuoteRequest>) -> Json<QuoteResponse> {
     // Connect to Tides hub, NOTE: the client should ideally be long-lived.
-    let mut client = match TidesClient::connect("https://hub.tides.xyz").await {
+    let mut client = match TidesClient::connect("https://sui-hub-tip.tides.xyz").await {
         Ok(client) => client,
         Err(e) => return Json(QuoteResponse {
             quote_data: None,
@@ -116,7 +116,7 @@ interface QuoteResponse {
 
 async function executeSwapFromBackend() {
   // Create Tides client for decoding
-  const tidesClient = new TidesClient("https://hub.tides.xyz");
+  const tidesClient = new TidesClient("https://sui-hub-tip.tides.xyz");
 
   const inputAmount = 1_000_000; // 1 USDC
   const inputType = "0xa::usdc::USDC";

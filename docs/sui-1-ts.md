@@ -30,7 +30,7 @@ import { TidesClient } from "@tides-protocol/sui-swap-sdk";
 
 async function basicSwapExample(): Promise<void> {
   // Connect to Tides hub
-  const tidesClient = await TidesClient.connect("https://hub.tides.xyz");
+  const tidesClient = await TidesClient.connect("https://sui-hub-tip.tides.xyz");
 
   const inputUsdcAmount = 1_000_000n; // 1 USDC (6 decimals)
 
@@ -103,7 +103,7 @@ Request a quote by specifying exactly how much output token you want to receive.
 ```typescript
 async function exactOutSwapExample(): Promise<void> {
   // Connect to Tides hub
-  const tidesClient = await TidesClient.connect("https://hub.tides.xyz");
+  const tidesClient = await TidesClient.connect("https://sui-hub-tip.tides.xyz");
 
   const desiredSuiAmount = 1_000_000_000n; // 1 SUI (9 decimals)
 
@@ -180,7 +180,7 @@ import { TidesClient } from "@tides-protocol/sui-swap-sdk";
 
 async function partialSwapExample(): Promise<void> {
   // Connect to Tides hub
-  const tidesClient = await TidesClient.connect("https://hub.tides.xyz");
+  const tidesClient = await TidesClient.connect("https://sui-hub-tip.tides.xyz");
 
   const fullUsdcAmount = 1_000_000n; // 1 USDC (6 decimals)
 

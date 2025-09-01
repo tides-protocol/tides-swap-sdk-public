@@ -33,7 +33,7 @@ use std::str::FromStr;
 #[tokio::main]
 async fn basic_swap_example() -> Result<(), Box<dyn std::error::Error>> {
     // Connect to Tides hub
-    let mut client = TidesClient::connect("https://hub.tides.xyz").await?;
+    let mut client = TidesClient::connect("https://sui-hub-tip.tides.xyz").await?;
 
     let input_usdc_amount = 1_000_000; // 1 USDC (6 decimals)
 
@@ -89,7 +89,7 @@ Request a quote by specifying exactly how much output token you want to receive.
 ```rust
 async fn exact_out_swap_example() -> Result<(), Box<dyn std::error::Error>> {
     // Connect to Tides hub
-    let mut client = TidesClient::connect("https://hub.tides.xyz").await?;
+    let mut client = TidesClient::connect("https://sui-hub-tip.tides.xyz").await?;
 
     let desired_sui_amount = 1_000_000_000; // 1 SUI (9 decimals)
 
@@ -145,7 +145,7 @@ Execute only a portion of a quote. Useful for aggregators or when you want to li
 ```rust
 async fn partial_swap_example() -> Result<(), Box<dyn std::error::Error>> {
     // Connect to Tides hub
-    let mut client = TidesClient::connect("https://hub.tides.xyz").await?;
+    let mut client = TidesClient::connect("https://sui-hub-tip.tides.xyz").await?;
 
     let full_usdc_amount = 1_000_000; // 1 USDC (6 decimals)
 
