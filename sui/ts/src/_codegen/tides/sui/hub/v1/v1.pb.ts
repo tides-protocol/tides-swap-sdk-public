@@ -13,24 +13,24 @@ import { share } from "rxjs/operators";
 import { Timestamp } from "../../../../google/protobuf/timestamp.pb";
 import { AssetInfo, DeploymentInfo, SharedObject } from "../../common/v1/v1.pb";
 
-/**
- * TODO: Reserve the 0th variant for UNSPECIFIED type,
- * @see https://protobuf.dev/best-practices/dos-donts/#unspecified-enum
- */
 export enum NativeOracleType {
-  PushOracle = 0,
-  PullOracle = 1,
+  NATIVE_ORACLE_TYPE_UNSPECIFIED = 0,
+  NATIVE_ORACLE_TYPE_PUSH_ORACLE = 1,
+  NATIVE_ORACLE_TYPE_PULL_ORACLE = 2,
   UNRECOGNIZED = -1,
 }
 
 export function nativeOracleTypeFromJSON(object: any): NativeOracleType {
   switch (object) {
     case 0:
-    case "PushOracle":
-      return NativeOracleType.PushOracle;
+    case "NATIVE_ORACLE_TYPE_UNSPECIFIED":
+      return NativeOracleType.NATIVE_ORACLE_TYPE_UNSPECIFIED;
     case 1:
-    case "PullOracle":
-      return NativeOracleType.PullOracle;
+    case "NATIVE_ORACLE_TYPE_PUSH_ORACLE":
+      return NativeOracleType.NATIVE_ORACLE_TYPE_PUSH_ORACLE;
+    case 2:
+    case "NATIVE_ORACLE_TYPE_PULL_ORACLE":
+      return NativeOracleType.NATIVE_ORACLE_TYPE_PULL_ORACLE;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -40,10 +40,12 @@ export function nativeOracleTypeFromJSON(object: any): NativeOracleType {
 
 export function nativeOracleTypeToJSON(object: NativeOracleType): string {
   switch (object) {
-    case NativeOracleType.PushOracle:
-      return "PushOracle";
-    case NativeOracleType.PullOracle:
-      return "PullOracle";
+    case NativeOracleType.NATIVE_ORACLE_TYPE_UNSPECIFIED:
+      return "NATIVE_ORACLE_TYPE_UNSPECIFIED";
+    case NativeOracleType.NATIVE_ORACLE_TYPE_PUSH_ORACLE:
+      return "NATIVE_ORACLE_TYPE_PUSH_ORACLE";
+    case NativeOracleType.NATIVE_ORACLE_TYPE_PULL_ORACLE:
+      return "NATIVE_ORACLE_TYPE_PULL_ORACLE";
     case NativeOracleType.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";
@@ -117,9 +119,7 @@ export interface NativeQuotePayload {
 
 export interface PythConfig {
   pythStateId: SharedObject | undefined;
-  pythPackageId: Uint8Array;
   wormholeStateId: SharedObject | undefined;
-  wormholePackageId: Uint8Array;
 }
 
 export interface PythPriceUpdate {
@@ -906,12 +906,7 @@ export const NativeQuotePayload: MessageFns<NativeQuotePayload> = {
 };
 
 function createBasePythConfig(): PythConfig {
-  return {
-    pythStateId: undefined,
-    pythPackageId: new Uint8Array(0),
-    wormholeStateId: undefined,
-    wormholePackageId: new Uint8Array(0),
-  };
+  return { pythStateId: undefined, wormholeStateId: undefined };
 }
 
 export const PythConfig: MessageFns<PythConfig> = {
@@ -919,14 +914,8 @@ export const PythConfig: MessageFns<PythConfig> = {
     if (message.pythStateId !== undefined) {
       SharedObject.encode(message.pythStateId, writer.uint32(10).fork()).join();
     }
-    if (message.pythPackageId.length !== 0) {
-      writer.uint32(18).bytes(message.pythPackageId);
-    }
     if (message.wormholeStateId !== undefined) {
-      SharedObject.encode(message.wormholeStateId, writer.uint32(26).fork()).join();
-    }
-    if (message.wormholePackageId.length !== 0) {
-      writer.uint32(34).bytes(message.wormholePackageId);
+      SharedObject.encode(message.wormholeStateId, writer.uint32(18).fork()).join();
     }
     return writer;
   },
@@ -951,23 +940,7 @@ export const PythConfig: MessageFns<PythConfig> = {
             break;
           }
 
-          message.pythPackageId = reader.bytes();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
           message.wormholeStateId = SharedObject.decode(reader, reader.uint32());
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.wormholePackageId = reader.bytes();
           continue;
         }
       }
@@ -982,11 +955,7 @@ export const PythConfig: MessageFns<PythConfig> = {
   fromJSON(object: any): PythConfig {
     return {
       pythStateId: isSet(object.pythStateId) ? SharedObject.fromJSON(object.pythStateId) : undefined,
-      pythPackageId: isSet(object.pythPackageId) ? bytesFromBase64(object.pythPackageId) : new Uint8Array(0),
       wormholeStateId: isSet(object.wormholeStateId) ? SharedObject.fromJSON(object.wormholeStateId) : undefined,
-      wormholePackageId: isSet(object.wormholePackageId)
-        ? bytesFromBase64(object.wormholePackageId)
-        : new Uint8Array(0),
     };
   },
 
@@ -995,14 +964,8 @@ export const PythConfig: MessageFns<PythConfig> = {
     if (message.pythStateId !== undefined) {
       obj.pythStateId = SharedObject.toJSON(message.pythStateId);
     }
-    if (message.pythPackageId.length !== 0) {
-      obj.pythPackageId = base64FromBytes(message.pythPackageId);
-    }
     if (message.wormholeStateId !== undefined) {
       obj.wormholeStateId = SharedObject.toJSON(message.wormholeStateId);
-    }
-    if (message.wormholePackageId.length !== 0) {
-      obj.wormholePackageId = base64FromBytes(message.wormholePackageId);
     }
     return obj;
   },
@@ -1015,11 +978,9 @@ export const PythConfig: MessageFns<PythConfig> = {
     message.pythStateId = (object.pythStateId !== undefined && object.pythStateId !== null)
       ? SharedObject.fromPartial(object.pythStateId)
       : undefined;
-    message.pythPackageId = object.pythPackageId ?? new Uint8Array(0);
     message.wormholeStateId = (object.wormholeStateId !== undefined && object.wormholeStateId !== null)
       ? SharedObject.fromPartial(object.wormholeStateId)
       : undefined;
-    message.wormholePackageId = object.wormholePackageId ?? new Uint8Array(0);
     return message;
   },
 };

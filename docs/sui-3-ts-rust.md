@@ -177,14 +177,14 @@ async function executeSwapFromBackend() {
     })(tx);
 
     // Create coin for Pyth oracle fees (paid in SUI)
-    const pythFeeCoin = coinWithBalance({
+    const priceUpdateFeeCoin = coinWithBalance({
       balance: quote.getPythPriceFees(),
     })(tx);
 
     // Apply swap to transaction
     quote.applySwapToTxAndTransferCoin(tx, {
       inputCoin,
-      pythFeeCoin,
+      priceUpdateFeeCoin,
       recipient: address,
     });
 

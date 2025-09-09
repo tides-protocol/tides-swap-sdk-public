@@ -6,7 +6,7 @@ import type {
 /**
  * Updates Suilend reserve prices using price info objects
  */
-export function updateSuilendReservePrices(
+export function refreshReservePrices(
   tx: Transaction,
   req: {
     suilendPackage: string

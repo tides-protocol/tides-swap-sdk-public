@@ -38,8 +38,6 @@ impl Quote {
             output,
             tides_package,
             suilend_package: address_from_bytes(&suilend_payload.suilend_package_id)?,
-            pyth_package_id: address_from_bytes(pyth_config.pyth_package_id.as_ref())?,
-            wormhole_package_id: address_from_bytes(&pyth_config.wormhole_package_id.as_ref())?,
             suilend_market: suilend_payload
                 .suilend_lending_market_id
                 .clone()

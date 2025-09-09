@@ -349,8 +349,9 @@ impl serde::Serialize for NativeOracleType {
         S: serde::Serializer,
     {
         let variant = match self {
-            Self::PushOracle => "PushOracle",
-            Self::PullOracle => "PullOracle",
+            Self::Unspecified => "NATIVE_ORACLE_TYPE_UNSPECIFIED",
+            Self::PushOracle => "NATIVE_ORACLE_TYPE_PUSH_ORACLE",
+            Self::PullOracle => "NATIVE_ORACLE_TYPE_PULL_ORACLE",
         };
         serializer.serialize_str(variant)
     }
@@ -362,8 +363,9 @@ impl<'de> serde::Deserialize<'de> for NativeOracleType {
         D: serde::Deserializer<'de>,
     {
         const FIELDS: &[&str] = &[
-            "PushOracle",
-            "PullOracle",
+            "NATIVE_ORACLE_TYPE_UNSPECIFIED",
+            "NATIVE_ORACLE_TYPE_PUSH_ORACLE",
+            "NATIVE_ORACLE_TYPE_PULL_ORACLE",
         ];
 
         struct GeneratedVisitor;
@@ -404,8 +406,9 @@ impl<'de> serde::Deserialize<'de> for NativeOracleType {
                 E: serde::de::Error,
             {
                 match value {
-                    "PushOracle" => Ok(NativeOracleType::PushOracle),
-                    "PullOracle" => Ok(NativeOracleType::PullOracle),
+                    "NATIVE_ORACLE_TYPE_UNSPECIFIED" => Ok(NativeOracleType::Unspecified),
+                    "NATIVE_ORACLE_TYPE_PUSH_ORACLE" => Ok(NativeOracleType::PushOracle),
+                    "NATIVE_ORACLE_TYPE_PULL_ORACLE" => Ok(NativeOracleType::PullOracle),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }
@@ -576,31 +579,15 @@ impl serde::Serialize for PythConfig {
         if self.pyth_state_id.is_some() {
             len += 1;
         }
-        if !self.pyth_package_id.is_empty() {
-            len += 1;
-        }
         if self.wormhole_state_id.is_some() {
-            len += 1;
-        }
-        if !self.wormhole_package_id.is_empty() {
             len += 1;
         }
         let mut struct_ser = serializer.serialize_struct("tides.sui.hub.v1.PythConfig", len)?;
         if let Some(v) = self.pyth_state_id.as_ref() {
             struct_ser.serialize_field("pythStateId", v)?;
         }
-        if !self.pyth_package_id.is_empty() {
-            #[allow(clippy::needless_borrow)]
-            #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("pythPackageId", pbjson::private::base64::encode(&self.pyth_package_id).as_str())?;
-        }
         if let Some(v) = self.wormhole_state_id.as_ref() {
             struct_ser.serialize_field("wormholeStateId", v)?;
-        }
-        if !self.wormhole_package_id.is_empty() {
-            #[allow(clippy::needless_borrow)]
-            #[allow(clippy::needless_borrows_for_generic_args)]
-            struct_ser.serialize_field("wormholePackageId", pbjson::private::base64::encode(&self.wormhole_package_id).as_str())?;
         }
         struct_ser.end()
     }
@@ -614,20 +601,14 @@ impl<'de> serde::Deserialize<'de> for PythConfig {
         const FIELDS: &[&str] = &[
             "pyth_state_id",
             "pythStateId",
-            "pyth_package_id",
-            "pythPackageId",
             "wormhole_state_id",
             "wormholeStateId",
-            "wormhole_package_id",
-            "wormholePackageId",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             PythStateId,
-            PythPackageId,
             WormholeStateId,
-            WormholePackageId,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
             fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
@@ -650,9 +631,7 @@ impl<'de> serde::Deserialize<'de> for PythConfig {
                     {
                         match value {
                             "pythStateId" | "pyth_state_id" => Ok(GeneratedField::PythStateId),
-                            "pythPackageId" | "pyth_package_id" => Ok(GeneratedField::PythPackageId),
                             "wormholeStateId" | "wormhole_state_id" => Ok(GeneratedField::WormholeStateId),
-                            "wormholePackageId" | "wormhole_package_id" => Ok(GeneratedField::WormholePackageId),
                             _ => Err(serde::de::Error::unknown_field(value, FIELDS)),
                         }
                     }
@@ -673,9 +652,7 @@ impl<'de> serde::Deserialize<'de> for PythConfig {
                     V: serde::de::MapAccess<'de>,
             {
                 let mut pyth_state_id__ = None;
-                let mut pyth_package_id__ = None;
                 let mut wormhole_state_id__ = None;
-                let mut wormhole_package_id__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::PythStateId => {
@@ -684,35 +661,17 @@ impl<'de> serde::Deserialize<'de> for PythConfig {
                             }
                             pyth_state_id__ = map_.next_value()?;
                         }
-                        GeneratedField::PythPackageId => {
-                            if pyth_package_id__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("pythPackageId"));
-                            }
-                            pyth_package_id__ = 
-                                Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
-                            ;
-                        }
                         GeneratedField::WormholeStateId => {
                             if wormhole_state_id__.is_some() {
                                 return Err(serde::de::Error::duplicate_field("wormholeStateId"));
                             }
                             wormhole_state_id__ = map_.next_value()?;
                         }
-                        GeneratedField::WormholePackageId => {
-                            if wormhole_package_id__.is_some() {
-                                return Err(serde::de::Error::duplicate_field("wormholePackageId"));
-                            }
-                            wormhole_package_id__ = 
-                                Some(map_.next_value::<::pbjson::private::BytesDeserialize<_>>()?.0)
-                            ;
-                        }
                     }
                 }
                 Ok(PythConfig {
                     pyth_state_id: pyth_state_id__,
-                    pyth_package_id: pyth_package_id__.unwrap_or_default(),
                     wormhole_state_id: wormhole_state_id__,
-                    wormhole_package_id: wormhole_package_id__.unwrap_or_default(),
                 })
             }
         }

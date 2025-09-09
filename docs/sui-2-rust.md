@@ -69,6 +69,7 @@ async fn basic_swap_example() -> Result<(), Box<dyn std::error::Error>> {
             pyth_fee_coin,
             recipient_address,
             None, // clock; optional
+            None, // system_state; optional
         )?;
 
         // Execute transaction
@@ -125,6 +126,7 @@ async fn exact_out_swap_example() -> Result<(), Box<dyn std::error::Error>> {
             pyth_fee_coin,
             recipient_address,
             None, // clock; optional
+            None, // system_state; optional
         )?;
 
         // Execute transaction
@@ -189,6 +191,7 @@ async fn partial_swap_example() -> Result<(), Box<dyn std::error::Error>> {
                 pyth_fee_coin,
                 recipient_address,
                 None, // clock; optional
+            None, // system_state; optional
             )?;
 
             // Execute transaction

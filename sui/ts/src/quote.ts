@@ -6,9 +6,9 @@ import type {
 import type { Rfq } from './_codegen/tides/sui/hub/v1/v1.pb.ts';
 import type { SharedObjectInfo } from './utils';
 import { Rfq as RfqDecoder } from './_codegen/tides/sui/hub/v1/v1.pb.ts';
-import { updatePriceFeeds } from './pyth';
-import { updateSuilendReservePrices } from './suilend';
+import { refreshReservePrices } from './suilend';
 import { executeSwap } from './tides';
+import { updatePriceFeeds } from './updatePriceFeeds.ts';
 import { addSharedObject, objectIdFromUint8Array, parseSharedObjectInfo, u128FromLeBytes } from './utils';
 
 /**
@@ -19,8 +19,6 @@ export class Quote {
   output!: string;
   tidesPackage!: string;
   suilendPackage!: string;
-  pythPackageId!: string;
-  wormholePackageId!: string;
   suilendMarket!: SharedObjectInfo;
   wormholeState!: SharedObjectInfo;
   pythState!: SharedObjectInfo;
@@ -50,8 +48,6 @@ export class Quote {
     output: string
     tidesPackage: string
     suilendPackage: string
-    pythPackageId: string
-    wormholePackageId: string
     suilendMarket: SharedObjectInfo
     wormholeState: SharedObjectInfo
     pythState: SharedObjectInfo
@@ -168,8 +164,6 @@ export class Quote {
       output,
       tidesPackage,
       suilendPackage: objectIdFromUint8Array(suilendPayload.suilendPackageId),
-      pythPackageId: objectIdFromUint8Array(pythConfig.pythPackageId),
-      wormholePackageId: objectIdFromUint8Array(pythConfig.wormholePackageId),
       suilendMarket: parseSharedObjectInfo(suilendPayload.suilendLendingMarketId),
       wormholeState: parseSharedObjectInfo(pythConfig.wormholeStateId),
       pythState: parseSharedObjectInfo(pythConfig.pythStateId),
@@ -199,17 +193,17 @@ export class Quote {
     tx: Transaction,
     req: {
       inputCoin: TransactionObjectArgument
-      pythFeeCoin: TransactionObjectArgument
-      recipient: string
+      priceUpdateFeeCoin: TransactionObjectArgument
+      priceUpdateFeeSurplusRecipient?: TransactionArgument | string
+      recipient: TransactionArgument | string
       clock?: TransactionObjectArgument
+      systemState?: TransactionObjectArgument
     },
   ): void {
     const output = this.applySwapToTx(tx, {
-      inputCoin: req.inputCoin,
-      pythFeeCoin: req.pythFeeCoin,
-      clock: req.clock,
+      ...req,
+      priceUpdateFeeSurplusRecipient: req.priceUpdateFeeSurplusRecipient ?? req.recipient,
     });
-
     tx.transferObjects([output], req.recipient);
   }
 
@@ -221,25 +215,26 @@ export class Quote {
   applySwapToTx(
     tx: Transaction,
     req: {
-      inputCoin: TransactionArgument
-      pythFeeCoin: TransactionArgument
-      clock?: TransactionArgument
+      inputCoin: TransactionObjectArgument
+      priceUpdateFeeCoin: TransactionObjectArgument
+      priceUpdateFeeSurplusRecipient: TransactionArgument | string
+      clock?: TransactionObjectArgument
+      systemState?: TransactionObjectArgument
     },
   ): TransactionObjectArgument {
-    const clock = req.clock || tx.object.clock();
-    const suiTypeTag = '0x2::sui::SUI';
+    const clock = req.clock ?? tx.object.clock();
+    const systemState = req.systemState ?? tx.object.system();
 
     // Update price feeds
     const updatedPrices = updatePriceFeeds(tx, {
-      pythPackage: this.pythPackageId,
-      wormholePackage: this.wormholePackageId,
+      tidesPackage: this.tidesPackage,
       wormholeState: this.wormholeState,
       pythState: this.pythState,
       pythAccumulatorMessage: this.pythAccumulatorMessage,
       vaa: this.vaa,
       clock,
-      feeCoin: req.pythFeeCoin,
-      feeCoinType: suiTypeTag,
+      feeCoin: req.priceUpdateFeeCoin,
+      feeSurplusRecipient: req.priceUpdateFeeSurplusRecipient,
       priceInfoObjects: this.priceInfoObjects.map((p) => p.priceInfoObject),
       updatePriceFee: this.updatePriceFee,
     });
@@ -248,7 +243,7 @@ export class Quote {
     const suilendMarketArg = addSharedObject(tx, this.suilendMarket, true);
     const mainPoolTypeTag = `${this.suilendPackage}::suilend::MAIN_POOL`;
 
-    updateSuilendReservePrices(tx, {
+    refreshReservePrices(tx, {
       suilendPackage: this.suilendPackage,
       lendingMarket: suilendMarketArg,
       mainPoolTypeTag,
@@ -276,6 +271,7 @@ export class Quote {
       outputFloor: this.outputFloor,
       inputCoinArg: req.inputCoin,
       clockArg: clock,
+      systemStateArg: systemState,
     });
   }
 

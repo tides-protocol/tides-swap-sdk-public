@@ -1,21 +1,14 @@
 use crate::SharedObjectInfo;
 use std::str::FromStr;
-use sui_sdk_types::{Address, Argument, ObjectId, TypeTag};
-use sui_transaction_builder::{Function, TransactionBuilder};
+use sui_sdk_types::{Address, Argument, ObjectId};
+use sui_transaction_builder::TransactionBuilder;
 
 use anyhow::Result;
 use base64::Engine;
 use sui_transaction_builder::unresolved::{Input, InputKind, Value};
 
 pub(crate) fn add_bytes_to_tx(tx: &mut TransactionBuilder, bytes: &[u8]) -> Argument {
-    let value = bcs::to_bytes(bytes).unwrap();
-    tx.input(Input {
-        kind: Some(InputKind::Pure),
-        value: Some(Value::String(
-            base64::engine::general_purpose::STANDARD.encode(value),
-        )),
-        ..Default::default()
-    })
+    add_vector(tx, bytes)
 }
 
 pub(crate) fn add_shared_object(
@@ -32,38 +25,18 @@ pub(crate) fn add_shared_object(
     Ok(tx.input(input))
 }
 
-pub(crate) fn split_coin(
+pub(crate) fn add_vector<T: serde::Serialize>(
     tx: &mut TransactionBuilder,
-    coin_type: &TypeTag,
-    coin: Argument,
-    amount: u64,
-) -> Result<Argument> {
-    let function = Function::new(
-        "0x2".parse()?,
-        "coin".parse()?,
-        "split".parse()?,
-        vec![coin_type.clone()],
-    );
-
-    let amount_arg = add_u64(tx, amount);
-
-    Ok(tx.move_call(function, vec![coin, amount_arg]))
-}
-
-pub(crate) fn destroy_zero_coin(
-    tx: &mut TransactionBuilder,
-    coin_type: &TypeTag,
-    coin: Argument,
-) -> Result<()> {
-    let function = Function::new(
-        "0x2".parse()?,
-        "coin".parse()?,
-        "destroy_zero".parse()?,
-        vec![coin_type.clone()],
-    );
-    tx.move_call(function, vec![coin]);
-
-    Ok(())
+    value: &[T],
+) -> Argument {
+    let value = bcs::to_bytes(value).unwrap();
+    tx.input(Input {
+        kind: Some(InputKind::Pure),
+        value: Some(Value::String(
+            base64::engine::general_purpose::STANDARD.encode(value),
+        )),
+        ..Default::default()
+    })
 }
 
 pub(crate) fn add_u64(tx: &mut TransactionBuilder, amount: u64) -> Argument {
@@ -88,6 +61,12 @@ pub(crate) fn add_u128(tx: &mut TransactionBuilder, amount: u128) -> Argument {
 
 pub(crate) fn add_clock(tx: &mut TransactionBuilder) -> Argument {
     let input = Input::shared(ObjectId::from_str("0x6").unwrap(), 1, false);
+
+    tx.input(input)
+}
+
+pub(crate) fn add_system_state(tx: &mut TransactionBuilder) -> Argument {
+    let input = Input::shared(ObjectId::from_str("0x5").unwrap(), 1, true);
 
     tx.input(input)
 }

@@ -1,10 +1,11 @@
 mod _codegen;
-mod proto_to_quote;
-mod pyth;
+
 mod suilend;
 mod tides;
+
+mod proto_to_quote;
+mod update_price_feeds;
 mod utils;
-mod wormhole;
 
 use crate::_codegen::tides::sui::common::v1::{DeploymentInfo, SharedObject};
 use crate::_codegen::tides::sui::hub::v1::Rfq;
@@ -12,14 +13,14 @@ use crate::_codegen::tides::sui::hub::v1::hub_service_client::HubServiceClient;
 use crate::_codegen::tides::sui::hub::v1::{
     DeploymentInfoRequest, QuoteTradeExactInRequest, QuoteTradeExactOutRequest,
 };
-use crate::pyth::{UpdatePriceFeeds, update_price_feeds};
 use crate::suilend::{UpdateSuilendReserves, update_suilend_reserve_prices};
 use crate::tides::{TidesSwap, execute_swap};
+use crate::update_price_feeds::{UpdatePriceFeeds, update_price_feeds};
 use crate::utils::{
-    add_address_to_tx, add_clock, add_shared_object, address_from_bytes, timestamp_into_proto,
+    add_address_to_tx, add_clock, add_shared_object, add_system_state, address_from_bytes,
+    timestamp_into_proto,
 };
 use anyhow::Result;
-use std::str::FromStr;
 use sui_sdk_types::{Address, Argument, StructTag, TypeTag};
 use sui_transaction_builder::TransactionBuilder;
 use tonic::transport::Channel;
@@ -164,8 +165,6 @@ pub struct Quote {
 
     tides_package: Address,
     suilend_package: Address,
-    pyth_package_id: Address,
-    wormhole_package_id: Address,
 
     suilend_market: SharedObjectInfo,
     wormhole_state: SharedObjectInfo,
@@ -193,23 +192,60 @@ pub struct Quote {
 
 impl Quote {
     /// Applies all necessary Move commands to execute the swap and transfers the resulting
-    /// output coin directly to the recipient address. This is a convenience method that
-    /// combines apply_swap_to_tx() with a transfer operation.
+    /// output coin directly to the recipient address, returning any pice update fee surplus
+    /// to the recipient as well.
+    /// This is a convenience method that combines apply_swap_to_tx() with a transfer operation.
     pub fn apply_swap_to_tx_and_transfer_coin(
         &self,
         tx: &mut TransactionBuilder,
         input_coin: Argument,
-        pay_suilend_fees_coin: Argument,
+        price_update_fee_coin: Argument,
         recipient: Address,
         clock: Option<Argument>,
+        system_state: Option<Argument>,
     ) -> Result<()> {
-        let output = self.apply_swap_to_tx(tx, input_coin, pay_suilend_fees_coin, clock)?;
+        let recipient_arg = add_address_to_tx(tx, recipient);
 
-        let address_arg = add_address_to_tx(tx, recipient);
-        tx.transfer_objects(vec![output], address_arg);
+        self.apply_swap_to_tx_and_transfer_coin_with_custom_recipients(
+            tx,
+            input_coin,
+            price_update_fee_coin,
+            None,
+            recipient_arg,
+            clock,
+            system_state,
+        )
+    }
+
+    /// Applies all necessary Move commands to execute the swap and transfers the resulting
+    /// output coin directly to the recipient address. This is a convenience method that
+    /// combines apply_swap_to_tx() with a transfer operation.
+    pub fn apply_swap_to_tx_and_transfer_coin_with_custom_recipients(
+        &self,
+        tx: &mut TransactionBuilder,
+        input_coin: Argument,
+        price_update_fee_coin: Argument,
+        price_update_fee_surplus_recipient_arg: Option<Argument>,
+        recipient_arg: Argument,
+        clock: Option<Argument>,
+        system_state: Option<Argument>,
+    ) -> Result<()> {
+        let price_update_fee_surplus_recipient_arg =
+            price_update_fee_surplus_recipient_arg.unwrap_or(recipient_arg);
+        let output = self.apply_swap_to_tx(
+            tx,
+            input_coin,
+            price_update_fee_coin,
+            price_update_fee_surplus_recipient_arg,
+            clock,
+            system_state,
+        )?;
+
+        tx.transfer_objects(vec![output], recipient_arg);
 
         Ok(())
     }
+
     /// Applies all necessary Move commands to execute the swap, including price updates
     /// and Suilend reserve refreshes. Returns the output balance argument for further use.
     /// Use this when you want to handle the output balance yourself instead of transferring.
@@ -217,22 +253,23 @@ impl Quote {
         &self,
         tx: &mut TransactionBuilder,
         input_coin: Argument,
-        pay_suilend_fees_coin: Argument,
+        price_update_fee_coin: Argument,
+        price_update_fee_surplus_recipient_arg: Argument,
         clock: Option<Argument>,
+        system_state: Option<Argument>,
     ) -> Result<Argument> {
         let clock = clock.unwrap_or_else(|| add_clock(tx));
-        let sui_type_tag = TypeTag::from_str("0x2::sui::SUI")?;
+        let system_state = system_state.unwrap_or_else(|| add_system_state(tx));
 
         let update_price = UpdatePriceFeeds {
-            pyth_package: self.pyth_package_id,
-            wormhole_package: self.wormhole_package_id,
+            tides_package: self.tides_package,
             wormhole_state: &self.wormhole_state,
             pyth_state: &self.pyth_state,
             pyth_accumulator_message: &self.pyth_accumulator_message,
             vaa: &self.vaa,
             clock,
-            fee_coin: pay_suilend_fees_coin,
-            fee_coin_type: &sui_type_tag,
+            fee_coin: price_update_fee_coin,
+            fee_surplus_recipient_arg: price_update_fee_surplus_recipient_arg,
             price_info_objects: self.price_info_objects.iter().map(|v| &v.1).collect(),
             update_price_fee: self.update_price_fee,
         };
@@ -277,6 +314,7 @@ impl Quote {
             output_floor: self.output_floor,
             input_coin_arg: input_coin,
             clock_arg: clock,
+            system_state_arg: system_state,
         };
 
         execute_swap(tx, swap)
@@ -373,8 +411,6 @@ mod tests {
             output: TypeTag::from_str("0x2::coin::COIN").unwrap(),
             tides_package: Address::from_str("0x1").unwrap(),
             suilend_package: Address::from_str("0x1").unwrap(),
-            pyth_package_id: Address::from_str("0x1").unwrap(),
-            wormhole_package_id: Address::from_str("0x1").unwrap(),
             suilend_market: SharedObjectInfo {
                 id: Address::from_str("0x1").unwrap(),
                 initial_shared_version: 1,

@@ -68,14 +68,14 @@ async function basicSwapExample(): Promise<void> {
     })(tx);
 
     // Create coin for Pyth oracle fees (paid in SUI), it's 1 MIST or 10^-9 SUI.
-    const pythFeeCoin = coinWithBalance({
+    const priceUpdateFeeCoin = coinWithBalance({
       balance: quote.getPythPriceFees(),
     })(tx);
 
     // Apply swap to transaction
     quote.applySwapToTxAndTransferCoin(tx, {
       inputCoin,
-      pythFeeCoin,
+      priceUpdateFeeCoin,
       recipient: address,
     });
 
@@ -140,14 +140,14 @@ async function exactOutSwapExample(): Promise<void> {
     })(tx);
 
     // Create coin for Pyth oracle fees (paid in SUI)
-    const pythFeeCoin = coinWithBalance({
+    const priceUpdateFeeCoin = coinWithBalance({
       balance: quote.getPythPriceFees(),
     })(tx);
 
     // Apply swap to transaction
     quote.applySwapToTxAndTransferCoin(tx, {
       inputCoin,
-      pythFeeCoin,
+      priceUpdateFeeCoin,
       recipient: address,
     });
 
@@ -229,14 +229,14 @@ async function partialSwapExample(): Promise<void> {
     })(tx);
 
     // Create coin for Pyth oracle fees (paid in SUI)
-    const pythFeeCoin = coinWithBalance({
+    const priceUpdateFeeCoin = coinWithBalance({
       balance: quote.getPythPriceFees(),
     })(tx);
 
     // Apply partial swap to transaction
     quote.applySwapToTxAndTransferCoin(tx, {
       inputCoin,
-      pythFeeCoin,
+      priceUpdateFeeCoin,
       recipient: address,
     });
 

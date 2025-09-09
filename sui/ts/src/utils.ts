@@ -1,6 +1,6 @@
 import type {
   Transaction,
-  TransactionArgument,
+  TransactionObjectArgument,
 } from '@mysten/sui/transactions';
 import type { SharedObject } from './_codegen/tides/sui/common/v1/v1.pb.ts';
 
@@ -13,40 +13,11 @@ export function addSharedObject(
   tx: Transaction,
   object: SharedObjectInfo,
   mutable: boolean,
-): TransactionArgument {
+): TransactionObjectArgument {
   return tx.sharedObjectRef({
     objectId: object.id,
     initialSharedVersion: object.initialSharedVersion.toString(),
     mutable,
-  });
-}
-
-export function splitCoin(
-  tx: Transaction,
-  coinType: string,
-  coin: TransactionArgument,
-  amount: bigint,
-): TransactionArgument {
-  return tx.moveCall({
-    package: '0x2',
-    module: 'coin',
-    function: 'split',
-    typeArguments: [coinType],
-    arguments: [coin, tx.pure.u64(amount)],
-  });
-}
-
-export function destroyZeroCoin(
-  tx: Transaction,
-  coinType: string,
-  coin: TransactionArgument,
-): void {
-  tx.moveCall({
-    package: '0x2',
-    module: 'coin',
-    function: 'destroy_zero',
-    typeArguments: [coinType],
-    arguments: [coin],
   });
 }
 
